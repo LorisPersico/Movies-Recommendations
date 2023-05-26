@@ -14,7 +14,7 @@ def searchResults(request):
     else:
         movieTitle = ''
 
-    print("Loading data from files, plase wait...")
+    print("Loading data from files, please wait...")
     try:
         path = 'data/movies.csv'
         columnNames = ['MovieID', 'Title', 'Genres']
