@@ -21,6 +21,7 @@ def searchResults(request):
         dfMovies = pd.read_csv(path, sep=',', encoding='ISO-8859-1', names=columnNames, header=None, engine='python')
         movies = list(dfMovies['Title'])
         moviesFound = []
+        print('Test commit')
         for movie in movies:
             # I remove the year for the comparison
             # TO DO: improving matching like searching also for regular expression in it
