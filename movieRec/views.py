@@ -17,18 +17,39 @@ def searchResults(request):
 
     print("Loading data from files, please wait...")
     try:
-        path = 'data/movies.csv'
+        path = 'data/movies.dat'
         columnNames = ['MovieID', 'Title', 'Genres']
-        dfMovies = pd.read_csv(path, sep=',', encoding='ISO-8859-1', names=columnNames, header=None, engine='python')
-        movies = list(dfMovies['Title'])
+        dfMovies = pd.read_csv(path, sep='::', encoding='ISO-8859-1', names=columnNames, header=None, engine='python')
+
+        path = 'data/movie_poster.csv'
+        columnNames = ['MovieID', 'Poster']
+        dfPosters = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
+
+        path = 'data/movie_url.csv'
+        columnNames = ['MovieID', 'Url']
+        dfUrls = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
+        titles = list(dfMovies['Title'])
+
         moviesFound = []
-        for movie in movies:
+        for movie in titles:
             # Removing the year for the comparison
             # Computing the levenshteinDistance and searching also for patterns in the titles
             if utility.Module.levenshteinDistance(movie[:-7], movieTitle) < 0.45 or re.search(movieTitle, movie[:-7]):
-                moviesFound.append(movie)
+                movie_info = dfMovies[dfMovies['Title'] == movie]
+                if not movie_info.empty:
+                    movieId = movie_info.iloc[0]['MovieID']
+                    movie_poster = dfPosters[dfPosters['MovieID'] == movieId]
+                    movie_url = dfUrls[dfUrls['MovieID'] == movieId]
+                    moviesFound.append((
+                        movieId,
+                        movie_info.iloc[0]['Title'],
+                        movie_info.iloc[0]['Genres'],
+                        (lambda item: item.iloc[0]['Poster'] if (not item.empty) else 'Broken')(movie_poster),
+                        (lambda item: item.iloc[0]['Url'] if (not item.empty) else "linkNotFound")(movie_url)
+                    ))
         # results in alphabetical order
-        moviesFound.sort()
+        # TODO: sort tuple
+        # moviesFound.sort()
         context = {
             'movies': moviesFound,
         }
