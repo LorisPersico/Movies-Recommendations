@@ -2,6 +2,7 @@ import sys
 from django.shortcuts import render
 from movieRec import utility
 import pandas as pd
+import re
 
 
 def index(request):
@@ -22,11 +23,12 @@ def searchResults(request):
         movies = list(dfMovies['Title'])
         moviesFound = []
         for movie in movies:
-            # I remove the year for the comparison
-            # TO DO: improving matching like searching also for regular expression in it
-            if utility.Module.similar(movie[:-7], movieTitle) >= 0.8:
+            # Removing the year for the comparison
+            # Computing the levenshteinDistance and searching also for patterns in the titles
+            if utility.Module.levenshteinDistance(movie[:-7], movieTitle) < 0.45 or re.search(movieTitle, movie[:-7]):
                 moviesFound.append(movie)
-
+        # results in alphabetical order
+        moviesFound.sort()
         context = {
             'movies': moviesFound,
         }

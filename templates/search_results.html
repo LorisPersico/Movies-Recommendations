@@ -1,39 +1,67 @@
 <!DOCTYPE html>
 <html>
 <style>
+    body {
+        background-color: #f1f1f1;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .container {
+        max-width: 800px;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
     table {
-        border-collapse: collapse;
         width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
     }
 
     th, td {
-        border: 1px solid black;
-        padding: 8px;
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
     }
 
     th {
-        background-color: #f2f2f2;
+        background-color: #333;
+        color: #fff;
     }
 
     tr:nth-child(even) {
-        background-color: #dddddd;
+        background-color: #f2f2f2;
     }
 </style>
 <head>
     <title>Second Page</title>
 </head>
 <body>
-<p>These are the movies found.</p>
+<div class="container">
+    <p>These are the movies found.</p>
 
-<table>
-    <tr>
-        <th>Title</th>
-    </tr>
-    {% for movie in movies %}
+    <table>
         <tr>
-            <td>{{ movie }}</td>
+            <th>Title</th>
         </tr>
-    {% endfor %}
-</table>
+        {% for movie in movies %}
+            <tr>
+                <td>{{ movie }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
 </body>
 </html>

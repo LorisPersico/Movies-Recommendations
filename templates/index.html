@@ -1,66 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>MovieRec App</title>
-  <style>
-    body {
-      background-color: #f1f1f1;
-      font-family: Arial, sans-serif;
-    }
+    <title>MovieRec App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70vh;
+            margin: 0;
+        }
 
-    .container {
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      border-radius: 5px;
-    }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
 
-    h1 {
-      text-align: center;
-      color: #333;
-    }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
 
-    .input-form {
-      display: flex;
-      justify-content: center;
-      margin-top: 30px;
-    }
+        .input-form {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
 
-    .input-field {
-      width: 70%;
-      padding: 10px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    }
+        .input-field {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
 
-    .submit-button {
-      margin-left: 10px;
-      padding: 10px 20px;
-      background-color: #333;
-      color: #fff;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+        .submit-button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    .submit-button:hover {
-      background-color: #555;
-    }
-  </style>
+        .submit-button:hover {
+            background-color: #555;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <h1>Welcome to the MovieRec App!</h1>
     <form class="input-form" action="{% url 'searchResults' %}" method="POST">
         {% csrf_token %}
-        <input id="movieTitle" name="movieTitle" type="text" class="input-field" placeholder="Enter the movie you are looking for" required>
-        <input type="submit" class="submit-button" value="Submit">
+        <input id="movieTitle" name="movieTitle" type="text" class="input-field" placeholder="Enter the Title of the movie you are looking for" required>
+        <button type="submit" class="submit-button"><i class="fas fa-search"></i></button>
     </form>
-  </div>
+</div>
 </body>
 </html>
