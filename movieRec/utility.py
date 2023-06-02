@@ -16,3 +16,12 @@ class Module:
         # return the distance in percentage
         perc = jellyfish.levenshtein_distance(a, b) / maxLength
         return perc
+
+    # J(A, B) = |A ∩ B| / |A ∪ B|
+    @staticmethod
+    def jaccardSim(list1, list2):
+        set1 = set(list1)
+        set2 = set(list2)
+        union = set1 | set2
+        intersection = set1 & set2
+        return len(intersection)/len(union)

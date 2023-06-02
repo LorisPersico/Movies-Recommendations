@@ -4,10 +4,16 @@ from movieRec import utility
 import pandas as pd
 import re
 
+# Sorting list of tuples according to a key
+def similarity(n):
+    return n[1]
+
+# function to sort the tuple
+def sort_by_similarity(list_of_tuples):
+    return sorted(list_of_tuples, key=similarity)
 
 def index(request):
     return render(request, 'index.html')
-
 
 def searchResults(request):
     if request.method == 'POST':
@@ -78,3 +84,86 @@ def searchResults(request):
             'movies': moviesFound,
         }
         return render(request, 'search_results.html', context)
+
+def recommendations(request):
+    if request.method == 'POST':
+        movieID = request.POST.get('movieID', '')
+    else:
+        movieID = ''
+
+    if not movieID.isnumeric():
+        # TODO: return page error
+        return render(request, 'index.html')
+
+    # need to convert it to int otherwise the drop() below will not work
+    movieIDint = int(movieID)
+    try:
+        path = 'data/movies.dat'
+        columnNames = ['MovieID', 'Title', 'Genres']
+        dfMovies = pd.read_csv(path, sep='::', encoding='ISO-8859-1', names=columnNames, header=None, engine='python')
+
+        path = 'data/movie_poster.csv'
+        columnNames = ['MovieID', 'Poster']
+        dfPosters = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
+
+        path = 'data/movie_url.csv'
+        columnNames = ['MovieID', 'Url']
+        dfUrls = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
+
+        path = 'data/ratings.dat'
+        columnNames = ['UserID', 'MovieID', 'Rating', 'TimeStamp']
+        dfRatings = pd.read_csv(path, sep='::', names=columnNames, header=None, engine='python')
+
+        selectedGenres = dfMovies.loc[dfMovies['MovieID'] == movieIDint, 'Genres'].values[0]
+
+        # remove the selected movie from the recommendations pool
+        dfMovies.drop(dfMovies[dfMovies['MovieID'] == movieIDint].index, inplace=True)
+        # extracting id and genre from the pool
+        idGenres = list(zip(dfMovies.MovieID, dfMovies.Genres))
+
+        moviesSim = []
+        # converting the selected genres into a list
+        row_genres1 = selectedGenres.split('|')
+        for item in idGenres:
+            row_genres2 = item[1].split('|')
+            sim = utility.Module.jaccardSim(row_genres1, row_genres2)
+            moviesSim.append((item[0], sim))
+        # sorting the results by similarity
+        moviesSim = sort_by_similarity(moviesSim)
+        # Get last 5 movies sorted by similarity crescent
+        moviesRecommended = moviesSim[-5:]
+
+        res = []
+        for movie in moviesRecommended:
+            idRecommendation = movie[0]
+            title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values[0]
+            genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values[0]
+            res.append((idRecommendation, title, genres))
+        context = {
+            'movies': res,
+        }
+        return render(request, 'recommendations.html', context)
+    except FileNotFoundError:
+        print(f"File {path} not found!", file=sys.stderr)
+        # TODO: return page error
+        moviesRecommended = []
+        context = {
+            'movies': moviesRecommended,
+        }
+        return render(request, 'index.html', context)
+    except PermissionError:
+        print(f"Insufficient permission to read {path}!", file=sys.stderr)
+        # TODO: return page error
+        moviesRecommended = []
+        context = {
+            'movies': moviesRecommended,
+        }
+        return render(request, 'index.html', context)
+    except IsADirectoryError:
+        print(f"{path} is a directory!", file=sys.stderr)
+        # TODO: return page error
+        moviesRecommended = []
+        context = {
+            'movies': moviesRecommended,
+        }
+        return render(request, 'index.html', context)

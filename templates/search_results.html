@@ -13,7 +13,6 @@
 
     .container {
         max-width: 1000px;
-        height: 70%;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         border-radius: 5px;
     }
@@ -63,18 +62,18 @@
     }
 
     .catchy-link {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #FF9800;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-  }
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #FF9800;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
 
-  .catchy-link:hover {
-    background-color: #FFC107;
-  }
+    .catchy-link:hover {
+        background-color: #FFC107;
+    }
 </style>
 <head>
     <title>Results</title>
@@ -82,8 +81,7 @@
 </head>
 <body>
 <div class="container">
-
-    <h1>"Lights, Camera... Results!"</h1>
+    <h1 style="margin-top: 50px">"Lights, Camera... Results!"</h1>
     <table>
         <tr>
             <th>Title</th>
@@ -98,7 +96,13 @@
                 <td>{{ movie.2 }}</td>
                 <td><img src="{{ movie.3 }}" style="width:128px;height:192px;" alt="{{ movie.1 }}"></td>
                 <td><a class="catchy-link" href="{{ movie.4 }}">... to the movie page!</a></td>
-                <td><button title="Show recommendations" type="submit" class="submit-button"><i class="fa-solid fa-scroll"></i></button></td>
+                <td>
+                    <form action="{% url 'recommendations' %}" method="POST" class="form">
+                        <input type="hidden" name="movieID" value="{{ movie.0 }}" />
+                        {% csrf_token %}
+                        <button type="submit" class="submit-button"><i class="fa-solid fa-scroll"></i></button>
+                    </form>
+                </td>
             </tr>
         {% endfor %}
     </table>

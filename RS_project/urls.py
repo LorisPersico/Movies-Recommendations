@@ -20,4 +20,5 @@ from movieRec import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('searchResults/', views.searchResults, name='searchResults'),
+    path('recommendations/', views.recommendations, name='recommendations'),
 ]
