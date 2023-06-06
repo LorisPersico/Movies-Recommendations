@@ -24,4 +24,19 @@ class Module:
         set2 = set(list2)
         union = set1 | set2
         intersection = set1 & set2
-        return len(intersection)/len(union)
+        return len(intersection) / len(union)
+
+    # K(A ,B) = (|A ∩ B| / |A|) + (|A ∩ B| / |B|) / 2
+    @staticmethod
+    def kulczynskiSim(list1, list2):
+        set1 = set(list1)
+        set2 = set(list2)
+        intersection = set1 & set2
+        len1 = len(set1)
+        len2 = len(set2)
+
+        if len1 == 0 or len2 == 0:
+            return 0
+
+        similarity = (len(intersection) / len1 + len(intersection) / len2) * 0.5
+        return similarity
