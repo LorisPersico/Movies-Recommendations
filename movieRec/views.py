@@ -23,9 +23,9 @@ def searchResults(request):
 
     print("Loading data from files, please wait...")
     try:
-        path = 'data/movies.dat'
+        path = 'data/movies_custom.csv'
         columnNames = ['MovieID', 'Title', 'Genres']
-        dfMovies = pd.read_csv(path, sep='::', encoding='ISO-8859-1', names=columnNames, header=None, engine='python')
+        dfMovies = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
 
         path = 'data/movie_poster.csv'
         columnNames = ['MovieID', 'Poster']
@@ -43,7 +43,7 @@ def searchResults(request):
             if utility.Module.levenshteinDistance(movie[:-7], movieTitle) < 0.45 or re.search(movieTitle, movie[:-7]):
                 movie_info = dfMovies[dfMovies['Title'] == movie]
                 if not movie_info.empty:
-                    movieId = movie_info.iloc[0]['MovieID']
+                    movieId = int(movie_info.iloc[0]['MovieID'])
                     movie_poster = dfPosters[dfPosters['MovieID'] == movieId]
                     movie_url = dfUrls[dfUrls['MovieID'] == movieId]
                     moviesFound.append((
@@ -56,6 +56,7 @@ def searchResults(request):
         # results in alphabetical order
         # TODO: sort tuple
         # moviesFound.sort()
+
         context = {
             'movies': moviesFound,
         }
@@ -95,12 +96,10 @@ def recommendations(request):
         # TODO: return page error
         return render(request, 'index.html')
 
-    # need to convert it to int otherwise the drop() below will not work
-    movieIDint = int(movieID)
     try:
-        path = 'data/movies.dat'
+        path = 'data/movies_custom.csv'
         columnNames = ['MovieID', 'Title', 'Genres']
-        dfMovies = pd.read_csv(path, sep='::', encoding='ISO-8859-1', names=columnNames, header=None, engine='python')
+        dfMovies = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
 
         path = 'data/movie_poster.csv'
         columnNames = ['MovieID', 'Poster']
@@ -114,10 +113,16 @@ def recommendations(request):
         columnNames = ['UserID', 'MovieID', 'Rating', 'TimeStamp']
         dfRatings = pd.read_csv(path, sep='::', names=columnNames, header=None, engine='python')
 
-        selectedGenres = dfMovies.loc[dfMovies['MovieID'] == movieIDint, 'Genres'].values[0]
+        path = 'data/extracted_custom.csv'
+        columnNames = ['MovieID', 'Actors', 'Synopsis', 'Plot']
+        dfFeatures = pd.read_csv(path, sep='§', quoting=3, encoding='utf8', names=columnNames, header=None,
+                                 engine='python')
+
+        # <editor-fold desc="Genre Similarity">
+        selectedGenres = dfMovies.loc[dfMovies['MovieID'] == movieID, 'Genres'].values[0]
 
         # remove the selected movie from the recommendations pool
-        dfMovies.drop(dfMovies[dfMovies['MovieID'] == movieIDint].index, inplace=True)
+        dfMovies.drop(dfMovies[dfMovies['MovieID'] == movieID].index, inplace=True)
         # extracting id and genre from the pool
         idGenres = list(zip(dfMovies.MovieID, dfMovies.Genres))
 
@@ -139,6 +144,8 @@ def recommendations(request):
             title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values[0]
             genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values[0]
             res.append((idRecommendation, title, genres))
+        # </editor-fold>
+
         context = {
             'movies': res,
         }
