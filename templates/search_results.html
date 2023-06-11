@@ -15,6 +15,9 @@
         max-width: 1000px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         border-radius: 5px;
+        overflow-y: auto; /* Added property for vertical scrolling */
+        max-height: 80vh; /* Added property to limit the height of the container */
+
     }
 
     h1 {
@@ -26,7 +29,6 @@
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
-        overflow-y: auto; /* Added property to allow vertical scrolling */
     }
 
     th, td {
@@ -81,7 +83,7 @@
 </head>
 <body>
 <div class="container">
-    <h1 style="margin-top: 50px">"Lights, Camera... Results!"</h1>
+    <h1 style="margin-top: 30px">"Lights, Camera... Results!"</h1>
     <table>
         <tr>
             <th>Title</th>
