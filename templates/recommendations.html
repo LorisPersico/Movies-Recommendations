@@ -4,8 +4,14 @@
     <title>Recommendations</title>
 </head>
 <body>
-<p>raccomandazioni</p>
-{% for movie in movies %}
+<p> -----GENERE----- </p>
+{% for movie in moviesGenres %}
+    <p>{{ movie.0 }}</p>
+    <p>{{ movie.1 }}</p>
+    <p>{{ movie.2 }}</p>
+{% endfor %}
+<p> -----PLOT----- </p>
+{% for movie in moviesPlot %}
     <p>{{ movie.0 }}</p>
     <p>{{ movie.1 }}</p>
     <p>{{ movie.2 }}</p>

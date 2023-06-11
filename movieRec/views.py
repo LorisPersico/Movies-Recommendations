@@ -1,7 +1,9 @@
 import sys
 from django.shortcuts import render
+from sklearn.feature_extraction.text import TfidfVectorizer
 from movieRec import utility
 import pandas as pd
+import numpy as np
 import re
 
 # Sorting list of tuples according to a key
@@ -135,19 +137,50 @@ def recommendations(request):
             moviesSim.append((item[0], sim))
         # sorting the results by similarity
         moviesSim = sort_by_similarity(moviesSim)
-        # Get last 5 movies sorted by similarity crescent
+        # get last 5 movies sorted by similarity crescent
         moviesRecommended = moviesSim[-5:]
 
-        res = []
+        res1 = []
         for movie in moviesRecommended:
             idRecommendation = movie[0]
             title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values[0]
             genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values[0]
-            res.append((idRecommendation, title, genres))
+            res1.append((idRecommendation, title, genres))
+        # </editor-fold>
+
+        # <editor-fold desc="Plot Similarity">
+        currentPlot = dfFeatures.loc[dfFeatures['MovieID'] == int(movieID), 'Plot'].values[0]
+        # creating the list of texts for the tf.idf, ignoring empty plots
+        corpus = list(dfFeatures['Plot'])
+        corpus = [str(val) for val in corpus if val is not None]
+        # compute similarity between texts
+        # from https://stackoverflow.com/questions/8897593/how-to-compute-the-similarity-between-two-text-documents
+        vect = TfidfVectorizer(min_df=1, stop_words="english")
+        tfidf = vect.fit_transform(corpus)
+        pairwise_similarity = tfidf * tfidf.T
+        arraySim = pairwise_similarity.toarray()
+
+        # taking the row for the current plot
+        input_idx = corpus.index(currentPlot)
+        rowSim = arraySim[input_idx]
+
+        # I take first 6 movies indexes by sim (the current movie is included, I will not take it into the final output)
+        resultIndexes = np.argpartition(rowSim, -6)[-6:]
+
+        res2 = []
+        for idx in resultIndexes:
+            plotFound = corpus[idx]
+            movieIdFound = str(dfFeatures.loc[dfFeatures['Plot'] == plotFound, 'MovieID'].values[0])
+            # I exclude the selected movie on the previous page
+            if not movieIdFound == movieID:
+                title = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Title'].values[0]
+                genres = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Genres'].values[0]
+                res2.append((movieIdFound, title, genres))
         # </editor-fold>
 
         context = {
-            'movies': res,
+            'moviesGenres': res1,
+            'moviesPlot': res2
         }
         return render(request, 'recommendations.html', context)
     except FileNotFoundError:
@@ -155,7 +188,7 @@ def recommendations(request):
         # TODO: return page error
         moviesRecommended = []
         context = {
-            'movies': moviesRecommended,
+            'moviesGenres': moviesRecommended,
         }
         return render(request, 'index.html', context)
     except PermissionError:
@@ -163,7 +196,7 @@ def recommendations(request):
         # TODO: return page error
         moviesRecommended = []
         context = {
-            'movies': moviesRecommended,
+            'moviesGenres': moviesRecommended,
         }
         return render(request, 'index.html', context)
     except IsADirectoryError:
@@ -171,6 +204,6 @@ def recommendations(request):
         # TODO: return page error
         moviesRecommended = []
         context = {
-            'movies': moviesRecommended,
+            'moviesGenres': moviesRecommended,
         }
         return render(request, 'index.html', context)
