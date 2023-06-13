@@ -6,16 +6,20 @@ import pandas as pd
 import numpy as np
 import re
 
+
 # Sorting list of tuples according to a key
-def similarity(n):
+def secondItem(n):
     return n[1]
 
+
 # function to sort the tuple
-def sort_by_similarity(list_of_tuples):
-    return sorted(list_of_tuples, key=similarity)
+def sortBySecondItem(list_of_tuples):
+    return sorted(list_of_tuples, key=secondItem)
+
 
 def index(request):
     return render(request, 'index.html')
+
 
 def searchResults(request):
     if request.method == 'POST':
@@ -99,6 +103,7 @@ def recommendations(request):
         return render(request, 'index.html')
 
     try:
+        # <editor-fold desc="Loading datas">
         path = 'data/movies_custom.csv'
         columnNames = ['MovieID', 'Title', 'Genres']
         dfMovies = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
@@ -120,6 +125,11 @@ def recommendations(request):
         dfFeatures = pd.read_csv(path, sep='§', quoting=3, encoding='utf8', names=columnNames, header=None,
                                  engine='python')
 
+        popularityDictionary = dfRatings.groupby(['MovieID'])['MovieID'].count().to_dict()
+        popularityList = list(popularityDictionary.items())
+        popularityList = sortBySecondItem(popularityList)
+        # </editor-fold>
+
         # <editor-fold desc="Genre Similarity">
         selectedGenres = dfMovies.loc[dfMovies['MovieID'] == movieID, 'Genres'].values[0]
 
@@ -136,12 +146,27 @@ def recommendations(request):
             sim = utility.Module.jaccardSim(row_genres1, row_genres2)
             moviesSim.append((item[0], sim))
         # sorting the results by similarity
-        moviesSim = sort_by_similarity(moviesSim)
-        # get last 5 movies sorted by similarity crescent
-        moviesRecommended = moviesSim[-5:]
+        moviesSim = sortBySecondItem(moviesSim)
+        # get last 20 movies sorted by similarity crescent
+        moviesRecommended = moviesSim[-20:]
+
+        moviesRecommendedWithPopularity = []
+        counter = 0
+        for popularMovie in popularityList:
+            for movieRecommended in moviesRecommended:
+                # if the popular movie is in the recommended list
+                if str(popularMovie[0]) == movieRecommended[0]:
+                    # I take it
+                    moviesRecommendedWithPopularity.append(movieRecommended)
+                    counter = counter + 1
+                    # I stop searching the recommended list
+                    break
+            # if I have already taken five elements, I will stop
+            if counter == 5:
+                break
 
         res1 = []
-        for movie in moviesRecommended:
+        for movie in moviesRecommendedWithPopularity:
             idRecommendation = movie[0]
             title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values[0]
             genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values[0]
@@ -164,18 +189,31 @@ def recommendations(request):
         input_idx = corpus.index(currentPlot)
         rowSim = arraySim[input_idx]
 
-        # I take first 6 movies indexes by sim (the current movie is included, I will not take it into the final output)
-        resultIndexes = np.argpartition(rowSim, -6)[-6:]
+        # I take first 10 movies indexes by sim (the current movie is included,
+        # I will not take it into the final output)
+        resultIndexes = np.argpartition(rowSim, -10)[-10:]
 
         res2 = []
-        for idx in resultIndexes:
-            plotFound = corpus[idx]
-            movieIdFound = str(dfFeatures.loc[dfFeatures['Plot'] == plotFound, 'MovieID'].values[0])
-            # I exclude the selected movie on the previous page
-            if not movieIdFound == movieID:
-                title = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Title'].values[0]
-                genres = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Genres'].values[0]
-                res2.append((movieIdFound, title, genres))
+        counter = 0
+        for popularMovie in popularityList:
+            for movieRecommended in resultIndexes:
+                # I take the corresponding plot of the index in the corpus
+                plotFound = corpus[movieRecommended]
+                # I retrieve the MovieID by the plot
+                movieIdFound = str(dfFeatures.loc[dfFeatures['Plot'] == plotFound, 'MovieID'].values[0])
+                # if the popular movie is in the recommended list AND
+                # it is not the one selected before
+                if str(popularMovie[0]) == movieIdFound and not movieIdFound == movieID:
+                    # I take it
+                    title = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Title'].values[0]
+                    genres = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Genres'].values[0]
+                    res2.append((movieIdFound, title, genres))
+                    counter = counter + 1
+                    # I stop searching the recommended list
+                    break
+            # if I have already taken five elements, I will stop
+            if counter == 5:
+                break
         # </editor-fold>
 
         context = {
