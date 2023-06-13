@@ -216,9 +216,53 @@ def recommendations(request):
                 break
         # </editor-fold>
 
+        # <editor-fold desc="Synopsis Similarity">
+        currentSynopsis = dfFeatures.loc[dfFeatures['MovieID'] == int(movieID), 'Synopsis'].values[0]
+        # creating the list of texts for the tf.idf, ignoring empty plots
+        corpus = list(dfFeatures['Synopsis'])
+        corpus = [str(val) for val in corpus if val is not None]
+        # compute similarity between texts
+        # from https://stackoverflow.com/questions/8897593/how-to-compute-the-similarity-between-two-text-documents
+        vect = TfidfVectorizer(min_df=1, stop_words="english")
+        tfidf = vect.fit_transform(corpus)
+        pairwise_similarity = tfidf * tfidf.T
+        arraySim = pairwise_similarity.toarray()
+
+        # taking the row for the current synopsis
+        input_idx = corpus.index(currentSynopsis)
+        rowSim = arraySim[input_idx]
+
+        # I take first 10 movies indexes by sim (the current movie is included,
+        # I will not take it into the final output)
+        resultIndexes = np.argpartition(rowSim, -10)[-10:]
+
+        res3 = []
+        counter = 0
+        for popularMovie in popularityList:
+            for movieRecommended in resultIndexes:
+                # I take the corresponding plot of the index in the corpus
+                synopsisFound = corpus[movieRecommended]
+                # I retrieve the MovieID by the plot
+                movieIdFound = str(dfFeatures.loc[dfFeatures['Synopsis'] == synopsisFound, 'MovieID'].values[0])
+                # if the popular movie is in the recommended list AND
+                # it is not the one selected before
+                if str(popularMovie[0]) == movieIdFound and not movieIdFound == movieID:
+                    # I take it
+                    title = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Title'].values[0]
+                    genres = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Genres'].values[0]
+                    res3.append((movieIdFound, title, genres))
+                    counter = counter + 1
+                    # I stop searching the recommended list
+                    break
+            # if I have already taken five elements, I will stop
+            if counter == 5:
+                break
+        # </editor-fold>
+
         context = {
             'moviesGenres': res1,
-            'moviesPlot': res2
+            'moviesPlot': res2,
+            'moviesSynopsis': res3
         }
         return render(request, 'recommendations.html', context)
     except FileNotFoundError:
