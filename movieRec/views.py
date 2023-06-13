@@ -132,7 +132,6 @@ def recommendations(request):
 
         # <editor-fold desc="Genre Similarity">
         selectedGenres = dfMovies.loc[dfMovies['MovieID'] == movieID, 'Genres'].values[0]
-
         # remove the selected movie from the recommendations pool
         dfMovies.drop(dfMovies[dfMovies['MovieID'] == movieID].index, inplace=True)
         # extracting id and genre from the pool
@@ -143,7 +142,7 @@ def recommendations(request):
         row_genres1 = selectedGenres.split('|')
         for item in idGenres:
             row_genres2 = item[1].split('|')
-            sim = utility.Module.jaccardSim(row_genres1, row_genres2)
+            sim = utility.Module.kulczynskiSim(row_genres1, row_genres2)
             moviesSim.append((item[0], sim))
         # sorting the results by similarity
         moviesSim = sortBySecondItem(moviesSim)
@@ -259,10 +258,54 @@ def recommendations(request):
                 break
         # </editor-fold>
 
+        # <editor-fold desc="Actors Similarity">
+        selectedActors = dfFeatures.loc[dfFeatures['MovieID'] == int(movieID), 'Actors'].values[0]
+        # extracting id and genre from the pool
+        idActors = list(zip(dfFeatures.MovieID, dfFeatures.Actors))
+
+        moviesSim = []
+        # converting the selected genres into a list
+        row_actors1 = selectedActors.split('|')
+        for item in idActors:
+            if not pd.isna(item[1]):
+                row_actors2 = item[1].split('|')
+                sim = utility.Module.kulczynskiSim(row_actors1, row_actors2)
+            else:
+                sim = 0
+            moviesSim.append((item[0], sim))
+        # sorting the results by similarity
+        moviesSim = sortBySecondItem(moviesSim)
+        # get last 20 movies sorted by similarity crescent
+        moviesRecommended = moviesSim[-20:]
+
+        moviesRecommendedWithPopularity = []
+        counter = 0
+        for popularMovie in popularityList:
+            for movieRecommended in moviesRecommended:
+                # if the popular movie is in the recommended list
+                if popularMovie[0] == movieRecommended[0]:
+                    # I take it
+                    moviesRecommendedWithPopularity.append(movieRecommended)
+                    counter = counter + 1
+                    # I stop searching the recommended list
+                    break
+            # if I have already taken five elements, I will stop
+            if counter == 5:
+                break
+
+        res4 = []
+        for movie in moviesRecommendedWithPopularity:
+            idRecommendation = str(movie[0])
+            title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values[0]
+            genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values[0]
+            res4.append((idRecommendation, title, genres))
+        # </editor-fold>
+
         context = {
             'moviesGenres': res1,
             'moviesPlot': res2,
-            'moviesSynopsis': res3
+            'moviesSynopsis': res3,
+            'moviesActors': res4
         }
         return render(request, 'recommendations.html', context)
     except FileNotFoundError:
