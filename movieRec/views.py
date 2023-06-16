@@ -125,6 +125,10 @@ def recommendations(request):
         dfFeatures = pd.read_csv(path, sep='§', quoting=3, encoding='utf8', names=columnNames, header=None,
                                  engine='python')
 
+        path = 'data/genomes_custom.csv'
+        columnNames = ['MovieID', 'TagID', 'Relevance']
+        dfGenomes = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
+
         popularityDictionary = dfRatings.groupby(['MovieID'])['MovieID'].count().to_dict()
         popularityList = list(popularityDictionary.items())
         popularityList = sortBySecondItem(popularityList)
@@ -301,11 +305,65 @@ def recommendations(request):
             res4.append((idRecommendation, title, genres))
         # </editor-fold>
 
+        # <editor-fold desc="Keywords Similarity">
+        selectedTags = dfGenomes.loc[dfGenomes['MovieID'] == movieID, 'TagID']
+        selected_tags = selectedTags.tolist()
+
+        idTags = list(zip(dfGenomes.MovieID, dfGenomes.TagID, dfGenomes.Relevance))
+        movies_tags = {}
+
+        # retrieving the tags for each MovieId
+        for movie_id, tag_id, _ in idTags:
+            if movie_id not in movies_tags:
+                movies_tags[movie_id] = set()
+            movies_tags[movie_id].add(tag_id)
+
+        #calculating the similarity between the set of tags of the selected MovieID and the dataset
+        moviesSim = []
+        for movie_id, row_tags in movies_tags.items():
+            sim = utility.Module.kulczynskiSim(selected_tags, row_tags)
+            moviesSim.append((movie_id, sim))
+
+        # sorting the results by similarity
+        moviesSim = sortBySecondItem(moviesSim)
+
+        # get last 20 movies sorted by similarity crescent
+        moviesRecommended = moviesSim[-20:]
+
+        moviesRecommendedWithPopularity = []
+        counter = 0
+
+        for popularMovie in popularityList:
+            for movieRecommended in moviesRecommended:
+                # if the popular movie is in the recommended list
+                if popularMovie[0] == int(movieRecommended[0]):
+                    # I take it
+                    moviesRecommendedWithPopularity.append(movieRecommended)
+                    counter = counter + 1
+                    # I stop searching the recommended list
+                    break
+            # if I have already taken five elements, I will stop
+            if counter == 5:
+                break
+
+        res5 = []
+
+        for movie in moviesRecommendedWithPopularity:
+            idRecommendation = str(movie[0])
+            title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values
+            genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values
+            if len(title) > 0 and len(genres) > 0 and idRecommendation != movieID:
+                res5.append((idRecommendation, title[0], genres[0]))
+                counter = counter + 1
+
+        # </editor-fold>
+
         context = {
             'moviesGenres': res1,
             'moviesPlot': res2,
             'moviesSynopsis': res3,
-            'moviesActors': res4
+            'moviesActors': res4,
+            'moviesKeywords': res5
         }
         return render(request, 'recommendations.html', context)
     except FileNotFoundError:
