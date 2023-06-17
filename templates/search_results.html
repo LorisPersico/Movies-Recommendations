@@ -4,25 +4,29 @@
     body {
         background-color: #1e3444;
         font-family: Arial, sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
         margin: 0;
-    }
-
-    .container {
-        max-width: 1000px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        border-radius: 5px;
-        overflow-y: auto; /* Added property for vertical scrolling */
-        max-height: 80vh; /* Added property to limit the height of the container */
-        background-color: #233c4f;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
     }
 
     h1 {
         text-align: center;
         color: #fff;
+        margin-top: 30px;
+    }
+
+    .container {
+        width: 100%;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        overflow-y: auto;
+        background-color: #233c4f;
     }
 
     table {
@@ -83,32 +87,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-<div class="container">
-    <h1 style="margin-top: 30px">May the movie be in this list.</h1>
-    <table>
-        <tr>
-            <th>Title</th>
-            <th>Genre</th>
-            <th>Poster</th>
-            <th style="width: 209px"></th>
-            <th style="width: 80px"></th>
-        </tr>
-        {% for movie in movies %}
+    <h1>May the movie be in this list.</h1>
+    <div class="container">
+        <table>
             <tr>
-                <td>{{ movie.1 }}</td>
-                <td>{{ movie.2 }}</td>
-                <td><img src="{{ movie.3 }}" style="width:128px;height:192px;" alt="{{ movie.1 }}"></td>
-                <td><a class="catchy-link" href="{{ movie.4 }}">... to the movie page!</a></td>
-                <td>
-                    <form action="{% url 'recommendations' %}" method="POST" class="form">
-                        <input type="hidden" name="movieID" value="{{ movie.0 }}" />
-                        {% csrf_token %}
-                        <button type="submit" class="submit-button"><i class="fa-solid fa-scroll"></i></button>
-                    </form>
-                </td>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Poster</th>
+                <th></th>
+                <th></th>
             </tr>
-        {% endfor %}
-    </table>
-</div>
+            {% for movie in movies %}
+                <tr>
+                    <td>{{ movie.1 }}</td>
+                    <td>{{ movie.2 }}</td>
+                    <td><img src="{{ movie.3 }}" style="width:128px;height:192px;" alt="{{ movie.1 }}"></td>
+                    <td><a class="catchy-link" href="{{ movie.4 }}">... to the movie page!</a></td>
+                    <td>
+                        <form action="{% url 'recommendations' %}" method="POST" class="form">
+                            <input type="hidden" name="movieID" value="{{ movie.0 }}" />
+                            {% csrf_token %}
+                            <button type="submit" class="submit-button"><i class="fa-solid fa-scroll"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 </body>
 </html>
