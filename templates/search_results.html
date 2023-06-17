@@ -54,7 +54,6 @@
     }
 
     .submit-button {
-        margin-left: 10px;
         padding: 10px 20px;
         background-color: #4578a8;
         color: #fff;
@@ -91,18 +90,20 @@
     <div class="container">
         <table>
             <tr>
-                <th>Title</th>
-                <th>Genre</th>
-                <th>Poster</th>
-                <th></th>
-                <th></th>
+                <th style="width: 15%">Title</th>
+                <th style="width: 10%">Genre</th>
+                <th style="width: 40%">Plot</th>
+                <th style="width: 10%"></th>
+                <th style="width: 20%"></th>
+                <th style="width: 5%"></th>
             </tr>
             {% for movie in movies %}
                 <tr>
                     <td>{{ movie.1 }}</td>
                     <td>{{ movie.2 }}</td>
-                    <td><img src="{{ movie.3 }}" style="width:128px;height:192px;" alt="{{ movie.1 }}"></td>
-                    <td><a class="catchy-link" href="{{ movie.4 }}">... to the movie page!</a></td>
+                    <td>{{ movie.3 }}</td>
+                    <td><img src="{{ movie.4 }}" style="width:128px;height:192px;" alt="{{ movie.1 }}"></td>
+                    <td><a class="catchy-link" href="{{ movie.5 }}">... to the movie page!</a></td>
                     <td>
                         <form action="{% url 'recommendations' %}" method="POST" class="form">
                             <input type="hidden" name="movieID" value="{{ movie.0 }}" />

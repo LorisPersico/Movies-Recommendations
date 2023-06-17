@@ -42,6 +42,11 @@ def searchResults(request):
         dfUrls = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
         titles = list(dfMovies['Title'])
 
+        path = 'data/extracted_custom.csv'
+        columnNames = ['MovieID', 'Actors', 'Synopsis', 'Plot']
+        dfFeatures = pd.read_csv(path, sep='§', quoting=3, encoding='utf8', names=columnNames, header=None,
+                                 engine='python')
+
         moviesFound = []
         for movie in titles:
             # Removing the year for the comparison
@@ -52,10 +57,12 @@ def searchResults(request):
                     movieId = int(movie_info.iloc[0]['MovieID'])
                     movie_poster = dfPosters[dfPosters['MovieID'] == movieId]
                     movie_url = dfUrls[dfUrls['MovieID'] == movieId]
+                    movie_plot = dfFeatures.loc[dfFeatures['MovieID'] == int(movieId), 'Plot'].values[0]
                     moviesFound.append((
                         movieId,
                         movie_info.iloc[0]['Title'],
                         movie_info.iloc[0]['Genres'],
+                        movie_plot,
                         (lambda item: item.iloc[0]['Poster'] if (not item.empty) else utility.Module.posterNotFoundUrl)
                         (movie_poster),
                         (lambda item: item.iloc[0]['Url'] if (not item.empty) else "linkNotFound")(movie_url)
