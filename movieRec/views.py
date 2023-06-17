@@ -77,28 +77,13 @@ def searchResults(request):
         return render(request, 'search_results.html', context)
     except FileNotFoundError:
         print(f"File {path} not found!", file=sys.stderr)
-        # TO DO: return page error
-        moviesFound = []
-        context = {
-            'movies': moviesFound,
-        }
-        return render(request, 'search_results.html', context)
+        return render(request, 'error.html')
     except PermissionError:
         print(f"Insufficient permission to read {path}!", file=sys.stderr)
-        # TO DO: return page error
-        moviesFound = []
-        context = {
-            'movies': moviesFound,
-        }
-        return render(request, 'search_results.html', context)
+        return render(request, 'error.html')
     except IsADirectoryError:
         print(f"{path} is a directory!", file=sys.stderr)
-        # TO DO: return page error
-        moviesFound = []
-        context = {
-            'movies': moviesFound,
-        }
-        return render(request, 'search_results.html', context)
+        return render(request, 'error.html')
 
 def recommendations(request):
     if request.method == 'POST':
@@ -107,8 +92,7 @@ def recommendations(request):
         movieID = ''
 
     if not movieID.isnumeric():
-        # TODO: return page error
-        return render(request, 'index.html')
+        return render(request, 'error.html')
 
     try:
         # <editor-fold desc="Loading datas">
@@ -119,10 +103,6 @@ def recommendations(request):
         path = 'data/movie_poster.csv'
         columnNames = ['MovieID', 'Poster']
         dfPosters = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
-
-        path = 'data/movie_url.csv'
-        columnNames = ['MovieID', 'Url']
-        dfUrls = pd.read_csv(path, sep=',', names=columnNames, header=None, engine='python')
 
         path = 'data/ratings.dat'
         columnNames = ['UserID', 'MovieID', 'Rating', 'TimeStamp']
@@ -405,25 +385,10 @@ def recommendations(request):
         return render(request, 'recommendations.html', context)
     except FileNotFoundError:
         print(f"File {path} not found!", file=sys.stderr)
-        # TODO: return page error
-        moviesRecommended = []
-        context = {
-            'moviesGenres': moviesRecommended,
-        }
-        return render(request, 'index.html', context)
+        return render(request, 'error.html')
     except PermissionError:
         print(f"Insufficient permission to read {path}!", file=sys.stderr)
-        # TODO: return page error
-        moviesRecommended = []
-        context = {
-            'moviesGenres': moviesRecommended,
-        }
-        return render(request, 'index.html', context)
+        return render(request, 'error.html')
     except IsADirectoryError:
         print(f"{path} is a directory!", file=sys.stderr)
-        # TODO: return page error
-        moviesRecommended = []
-        context = {
-            'moviesGenres': moviesRecommended,
-        }
-        return render(request, 'index.html', context)
+        return render(request, 'error.html')
