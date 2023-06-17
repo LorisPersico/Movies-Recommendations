@@ -56,7 +56,8 @@ def searchResults(request):
                         movieId,
                         movie_info.iloc[0]['Title'],
                         movie_info.iloc[0]['Genres'],
-                        (lambda item: item.iloc[0]['Poster'] if (not item.empty) else 'Broken')(movie_poster),
+                        (lambda item: item.iloc[0]['Poster'] if (not item.empty) else utility.Module.posterNotFoundUrl)
+                        (movie_poster),
                         (lambda item: item.iloc[0]['Url'] if (not item.empty) else "linkNotFound")(movie_url)
                     ))
         # results in alphabetical order
@@ -173,7 +174,13 @@ def recommendations(request):
             idRecommendation = movie[0]
             title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values[0]
             genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values[0]
-            res1.append((idRecommendation, title, genres))
+            movie_poster = dfPosters[dfPosters['MovieID'] == int(idRecommendation)]
+            plot = dfFeatures.loc[dfFeatures['MovieID'] == int(idRecommendation), 'Plot'].values[0]
+            res1.append(((lambda item: item.iloc[0]['Poster'] if (not item.empty) else utility.Module.posterNotFoundUrl)
+                         (movie_poster),
+                         title,
+                         genres,
+                         plot))
         # </editor-fold>
 
         # <editor-fold desc="Plot Similarity">
@@ -210,7 +217,13 @@ def recommendations(request):
                     # I take it
                     title = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Title'].values[0]
                     genres = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Genres'].values[0]
-                    res2.append((movieIdFound, title, genres))
+                    movie_poster = dfPosters[dfPosters['MovieID'] == int(movieIdFound)]
+                    plot = dfFeatures.loc[dfFeatures['MovieID'] == int(movieIdFound), 'Plot'].values[0]
+                    res2.append(((lambda item: item.iloc[0]['Poster'] if (not item.empty) else utility.Module.posterNotFoundUrl)
+                                 (movie_poster),
+                                 title,
+                                 genres,
+                                 plot))
                     counter = counter + 1
                     # I stop searching the recommended list
                     break
@@ -253,7 +266,13 @@ def recommendations(request):
                     # I take it
                     title = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Title'].values[0]
                     genres = dfMovies.loc[dfMovies['MovieID'] == movieIdFound, 'Genres'].values[0]
-                    res3.append((movieIdFound, title, genres))
+                    movie_poster = dfPosters[dfPosters['MovieID'] == int(movieIdFound)]
+                    plot = dfFeatures.loc[dfFeatures['MovieID'] == int(movieIdFound), 'Plot'].values[0]
+                    res3.append(((lambda item: item.iloc[0]['Poster'] if (not item.empty) else utility.Module.posterNotFoundUrl)
+                                 (movie_poster),
+                                 title,
+                                 genres,
+                                 plot))
                     counter = counter + 1
                     # I stop searching the recommended list
                     break
@@ -302,7 +321,13 @@ def recommendations(request):
             idRecommendation = str(movie[0])
             title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values[0]
             genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values[0]
-            res4.append((idRecommendation, title, genres))
+            movie_poster = dfPosters[dfPosters['MovieID'] == int(idRecommendation)]
+            plot = dfFeatures.loc[dfFeatures['MovieID'] == int(idRecommendation), 'Plot'].values[0]
+            res4.append(((lambda item: item.iloc[0]['Poster'] if (not item.empty) else utility.Module.posterNotFoundUrl)
+                         (movie_poster),
+                         title,
+                         genres,
+                         plot))
         # </editor-fold>
 
         # <editor-fold desc="Keywords Similarity">
@@ -350,12 +375,17 @@ def recommendations(request):
 
         for movie in moviesRecommendedWithPopularity:
             idRecommendation = str(movie[0])
-            title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values
-            genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values
+            title = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Title'].values[0]
+            genres = dfMovies.loc[dfMovies['MovieID'] == idRecommendation, 'Genres'].values[0]
+            movie_poster = dfPosters[dfPosters['MovieID'] == int(idRecommendation)]
+            plot = dfFeatures.loc[dfFeatures['MovieID'] == int(idRecommendation), 'Plot'].values[0]
             if len(title) > 0 and len(genres) > 0 and idRecommendation != movieID:
-                res5.append((idRecommendation, title[0], genres[0]))
+                res5.append(((lambda item: item.iloc[0]['Poster'] if (not item.empty) else utility.Module.posterNotFoundUrl)
+                             (movie_poster),
+                             title,
+                             genres,
+                             plot))
                 counter = counter + 1
-
         # </editor-fold>
 
         context = {

@@ -2,37 +2,180 @@
 <html>
 <head>
     <title>Recommendations</title>
+    <style>
+        body {
+            background-color: #f1f1f1;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .carousel {
+            width: 100%;
+            overflow-x: auto;
+            white-space: nowrap;
+            margin-bottom: 30px;
+        }
+
+        .carousel-separator {
+            text-align: center;
+            margin-bottom: 20px;
+            margin-top: 50px;
+        }
+
+        .carousel-separator::before,
+        .carousel-separator::after {
+            content: "";
+            display: inline-block;
+            width: 50px;
+            height: 2px;
+            background-color: #ddd;
+            vertical-align: middle;
+        }
+
+        .carousel-title {
+            display: inline-block;
+            margin: 0 10px;
+            font-weight: bold;
+            color: #777;
+            vertical-align: middle;
+        }
+
+        .card {
+            display: flex;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            margin-right: 20px;
+            vertical-align: top;
+        }
+
+        .card-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card-image {
+            width: 150px;
+            height: auto;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        }
+
+        .card-text {
+            margin-left: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            color: #777;
+            text-wrap: initial;
+        }
+    </style>
 </head>
 <body>
-<p> -----GENERE----- </p>
-{% for movie in moviesGenres %}
-    <p>{{ movie.0 }}</p>
-    <p>{{ movie.1 }}</p>
-    <p>{{ movie.2 }}</p>
-{% endfor %}
-<p> -----PLOT----- </p>
-{% for movie in moviesPlot %}
-    <p>{{ movie.0 }}</p>
-    <p>{{ movie.1 }}</p>
-    <p>{{ movie.2 }}</p>
-{% endfor %}
-<p> -----SYNOPSIS----- </p>
-{% for movie in moviesSynopsis %}
-    <p>{{ movie.0 }}</p>
-    <p>{{ movie.1 }}</p>
-    <p>{{ movie.2 }}</p>
-{% endfor %}
-<p> -----ACTORS----- </p>
-{% for movie in moviesActors %}
-    <p>{{ movie.0 }}</p>
-    <p>{{ movie.1 }}</p>
-    <p>{{ movie.2 }}</p>
-{% endfor %}
-<p> ----KEYWORDS----- </p>
-{% for movie in moviesKeywords %}
-    <p>{{ movie.0 }}</p>
-    <p>{{ movie.1 }}</p>
-    <p>{{ movie.2 }}</p>
-{% endfor %}
+<h1>Lights, Camera... Results!</h1>
+<div class="carousel-separator">
+    <span class="carousel-title">First recommendations</span>
+  </div>
+<div class="carousel">
+    {% for movie in moviesGenres %}
+        <div class="card">
+            <div class="card-content">
+                <img style="width:128px;height:192px;" src="{{ movie.0 }}" alt="Not found." class="card-image">
+                <div class="card-text">
+                    <h2 class="card-title">{{ movie.1 }}</h2>
+                    <p class="card-subtitle">{{ movie.2 }}</p>
+                    <p class="card-description">{{ movie.3 }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<div class="carousel-separator">
+    <span class="carousel-title">Second recommendations</span>
+  </div>
+<div class="carousel">
+    {% for movie in moviesKeywords %}
+        <div class="card">
+            <div class="card-content">
+                <img style="width:128px;height:192px;" src="{{ movie.0 }}" alt="Not found." class="card-image">
+                <div class="card-text">
+                    <h2 class="card-title">{{ movie.1 }}</h2>
+                    <p class="card-subtitle">{{ movie.2 }}</p>
+                    <p class="card-description">{{ movie.3 }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<div class="carousel-separator">
+    <span class="carousel-title">Third recommendations</span>
+  </div>
+<div class="carousel">
+    {% for movie in moviesActors %}
+        <div class="card">
+            <div class="card-content">
+                <img style="width:128px;height:192px;" src="{{ movie.0 }}" alt="Not found." class="card-image">
+                <div class="card-text">
+                    <h2 class="card-title">{{ movie.1 }}</h2>
+                    <p class="card-subtitle">{{ movie.2 }}</p>
+                    <p class="card-description">{{ movie.3 }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<div class="carousel-separator">
+    <span class="carousel-title">Fourth recommendations</span>
+  </div>
+<div class="carousel">
+    {% for movie in moviesPlot %}
+        <div class="card">
+            <div class="card-content">
+                <img style="width:128px;height:192px;" src="{{ movie.0 }}" alt="Not found." class="card-image">
+                <div class="card-text">
+                    <h2 class="card-title">{{ movie.1 }}</h2>
+                    <p class="card-subtitle">{{ movie.2 }}</p>
+                    <p class="card-description">{{ movie.3 }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<div class="carousel-separator">
+    <span class="carousel-title">Fifth recommendations</span>
+  </div>
+<div class="carousel">
+    {% for movie in moviesSynopsis %}
+        <div class="card">
+            <div class="card-content">
+                <img style="width:128px;height:192px;" src="{{ movie.0 }}" alt="Not found." class="card-image">
+                <div class="card-text">
+                    <h2 class="card-title">{{ movie.1 }}</h2>
+                    <p class="card-subtitle">{{ movie.2 }}</p>
+                    <p class="card-description">{{ movie.3 }}</p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
 </body>
 </html>

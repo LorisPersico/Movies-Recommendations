@@ -40,3 +40,5 @@ class Module:
 
         similarity = (len(intersection) / len1 + len(intersection) / len2) * 0.5
         return similarity
+
+    posterNotFoundUrl = 'https://www.prokerala.com/movies/assets/img/no-poster-available.jpg'
